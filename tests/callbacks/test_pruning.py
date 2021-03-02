@@ -14,6 +14,7 @@
 import os
 from collections import OrderedDict
 from logging import INFO
+from typing import Union
 from unittest import mock
 
 import pytest
@@ -142,7 +143,7 @@ def test_pruning_misconfiguration():
 )
 @pytest.mark.parametrize("use_lottery_ticket_hypothesis", [False, True])
 def test_pruning_callback(
-    tmpdir, use_global_unstructured, parameters_to_prune, pruning_fn, use_lottery_ticket_hypothesis
+    tmpdir, use_global_unstructured: bool, parameters_to_prune: bool, pruning_fn: Union[str, pytorch_prune.BasePruningMethod], use_lottery_ticket_hypothesis: bool
 ):
     train_with_pruning_callback(
         tmpdir,
@@ -156,7 +157,7 @@ def test_pruning_callback(
 @RunIf(special=True)
 @pytest.mark.parametrize("parameters_to_prune", [False, True])
 @pytest.mark.parametrize("use_global_unstructured", [False, True])
-def test_pruning_callback_ddp(tmpdir, use_global_unstructured, parameters_to_prune):
+def test_pruning_callback_ddp(tmpdir, use_global_unstructured: bool, parameters_to_prune: bool):
     train_with_pruning_callback(
         tmpdir,
         parameters_to_prune=parameters_to_prune,
@@ -177,7 +178,7 @@ def test_pruning_callback_ddp_cpu(tmpdir):
 
 
 @pytest.mark.parametrize("resample_parameters", (False, True))
-def test_pruning_lth_callable(tmpdir, resample_parameters):
+def test_pruning_lth_callable(tmpdir, resample_parameters: bool):
     model = TestModel()
 
     class ModelPruningTestCallback(ModelPruning):
@@ -217,7 +218,7 @@ def test_pruning_lth_callable(tmpdir, resample_parameters):
 
 @pytest.mark.parametrize("make_pruning_permanent", (False, True))
 @mock.patch.dict(os.environ, {}, clear=True)
-def test_multiple_pruning_callbacks(tmpdir, caplog, make_pruning_permanent):
+def test_multiple_pruning_callbacks(tmpdir, caplog, make_pruning_permanent: bool):
     seed_everything(0)
     model = TestModel()
     pruning_kwargs = {
@@ -227,6 +228,7 @@ def test_multiple_pruning_callbacks(tmpdir, caplog, make_pruning_permanent):
     }
     p1 = ModelPruning("l1_unstructured", amount=0.5, apply_pruning=lambda e: not e % 2, **pruning_kwargs)
     p2 = ModelPruning("random_unstructured", amount=0.25, apply_pruning=lambda e: e % 2, **pruning_kwargs)
+
     trainer = Trainer(
         default_root_dir=tmpdir,
         progress_bar_refresh_rate=0,
