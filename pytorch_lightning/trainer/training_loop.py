@@ -296,6 +296,9 @@ class TrainLoop:
             self.trainer.logger_connector.cache_logged_metrics()
 
             self._check_training_step_output(training_step_output)
+            
+            print()
+            print("training_step", training_step_output)
 
             training_step_output = self.trainer.call_hook("training_step_end", training_step_output)
 
@@ -514,8 +517,13 @@ class TrainLoop:
             # VALIDATE IF NEEDED + CHECKPOINT CALLBACK
             # -----------------------------------------
             should_check_val = self.should_check_val_fx(batch_idx, is_last_batch)
+
+            print("should_check_val")
+
             if should_check_val:
+                print("STARTING EVALUTION")
                 self.trainer.run_evaluation()
+                print("FINISHED EVALUTION")
                 val_loop_called = True
 
                 # reset stage to train
@@ -577,7 +585,7 @@ class TrainLoop:
             self.trainer.run_evaluation(on_epoch=True)
 
             # reset stage to train
-            self.trainer._running_stage = RunningStage.TRAINING
+            self.trainer._set_running_stage(RunningStage.TRAINING, self.trainer.lightning_module)
 
         # increment the global step once
         # progress global step according to grads progress
