@@ -297,9 +297,6 @@ class TrainLoop:
 
             self._check_training_step_output(training_step_output)
             
-            print()
-            print("training_step", training_step_output)
-
             training_step_output = self.trainer.call_hook("training_step_end", training_step_output)
 
             training_step_output_for_epoch_end, training_step_output = self._process_training_step_output(
@@ -518,12 +515,8 @@ class TrainLoop:
             # -----------------------------------------
             should_check_val = self.should_check_val_fx(batch_idx, is_last_batch)
 
-            print("should_check_val")
-
             if should_check_val:
-                print("STARTING EVALUTION")
                 self.trainer.run_evaluation()
-                print("FINISHED EVALUTION")
                 val_loop_called = True
 
                 # reset stage to train
